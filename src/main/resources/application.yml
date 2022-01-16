@@ -1,0 +1,28 @@
+navigation:
+  dataExpirationTime: 3000  # relevance of reported position in milliseconds
+  baseStations:
+    -
+      name: bs1
+      x: -250.7
+      y: 170.2
+      detectionRadiusInMeters: 49.7
+    -
+      name: bs2
+      x: 52.1
+      y: 72
+      detectionRadiusInMeters: 30.3
+    -
+      name: bs3
+      x: 7.4
+      y: 2.5
+      detectionRadiusInMeters: 38.4
+    -
+      name: bs4
+      x: -28.4
+      y: -50.7
+      detectionRadiusInMeters: 21
+    -
+      name: bs5
+      x: 250.7
+      y: -170.2
+      detectionRadiusInMeters: 74.1
