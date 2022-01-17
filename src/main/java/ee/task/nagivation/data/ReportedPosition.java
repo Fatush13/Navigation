@@ -21,6 +21,6 @@ public class ReportedPosition {
     float x;
     float y;
     float errorRadius;
-    LocalDateTime timeStamp;
+    LocalDateTime timestamp;
 
 }

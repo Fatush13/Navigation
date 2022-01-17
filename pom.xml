@@ -12,7 +12,7 @@
 	<artifactId>nagivation</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>IN-house navigation system</name>
-	<description>Simple 2-D navigation system</description>
+	<description>2-D navigation system</description>
 	<properties>
 		<java.version>1.8</java.version>
 	</properties>
@@ -51,11 +51,6 @@
 			<artifactId>trilateration</artifactId>
 			<version>1.0.2</version>
 		</dependency>
-<!--		<dependency>-->
-<!--			<groupId>org.apache.commons</groupId>-->
-<!--			<artifactId>commons-math</artifactId>-->
-<!--			<version>2.2</version>-->
-<!--		</dependency>-->
 	</dependencies>
 
 	<build>
