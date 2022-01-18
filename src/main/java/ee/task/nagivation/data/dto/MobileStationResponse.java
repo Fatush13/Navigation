@@ -16,4 +16,5 @@ public class MobileStationResponse {
     int errorCode;
     @JsonProperty("error_description")
     String errorDescription;
+
 }

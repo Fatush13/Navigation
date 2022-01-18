@@ -1,6 +1,6 @@
 package ee.task.nagivation;
 
-import ee.task.nagivation.configuration.NavigationProperties;
+import ee.task.nagivation.config.NavigationProperties;
 import ee.task.nagivation.data.BaseStation;
 import ee.task.nagivation.data.access.BaseStationRepository;
 import ee.task.nagivation.service.BaseStationInitializer;

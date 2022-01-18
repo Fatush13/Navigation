@@ -1,7 +1,7 @@
 package ee.task.nagivation.service;
 
 
-import ee.task.nagivation.configuration.NavigationProperties;
+import ee.task.nagivation.config.NavigationProperties;
 import ee.task.nagivation.data.BaseStation;
 import ee.task.nagivation.data.MobileStation;
 import ee.task.nagivation.data.ReportedPosition;
@@ -10,24 +10,27 @@ import ee.task.nagivation.data.access.MobileStationRepository;
 import ee.task.nagivation.data.access.ReportedPositionRepository;
 import ee.task.nagivation.data.dto.BaseStationRequest;
 import ee.task.nagivation.data.dto.MobileStationResponse;
-import ee.task.nagivation.util.CompareUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
-import static ee.task.nagivation.exceptions.NavigationExceptions.*;
-import static ee.task.nagivation.util.ConvertUtil.convertToResponse;
+import lombok.extern.slf4j.Slf4j;
+
+import static ee.task.nagivation.exceptions.NavigationExceptions.INVALID_BASE_ID;
+import static ee.task.nagivation.exceptions.NavigationExceptions.INVALID_DETECTION_DISTANCE;
+import static ee.task.nagivation.exceptions.NavigationExceptions.MOBILE_NOT_DETECTED;
+import static ee.task.nagivation.util.ConvertionUtil.convertToResponse;
+import static ee.task.nagivation.util.FilteringUtil.filterReports;
 
 
 @Service
+@Slf4j
 public class PositioningService {
 
    /* dependencies */
@@ -46,20 +49,14 @@ public class PositioningService {
    /* actions */
 
    public void updatePosition(BaseStationRequest baseStationRequest) {
-      BaseStation baseStation = saveNewReport(baseStationRequest);
+      saveNewReport(baseStationRequest);
 
       List<MobileStation> mobileStations = new ArrayList<>();
 
       Arrays.stream(baseStationRequest.getReports()).forEach(report -> {
          List<ReportedPosition> reports = reportedPositionRepository.findAllByMobileStationId(report.getMobileId());
 
-         ReportedPosition latestReport = ReportedPosition.builder()
-              .x(baseStation.getX())
-              .y(baseStation.getY())
-              .errorRadius(report.getDistance())
-              .build();
-
-         reports = filterRelevantReports(reports, latestReport);
+         reports = filterReports(reports, navigationProperties.getDataExpirationTime());
 
          MobileStation mobileStation = calculationService.calculatePosition(reports);
 
@@ -74,7 +71,11 @@ public class PositioningService {
       if (mobileStation.isPresent()) {
          return convertToResponse(mobileStation.get());
       }
-      throw new NoSuchElementException(NOT_DETECTED);
+
+      return MobileStationResponse.builder()
+           .errorCode(404)
+           .errorDescription(MOBILE_NOT_DETECTED)
+           .build();
    }
 
    /* implementation */
@@ -84,42 +85,23 @@ public class PositioningService {
 
       if (baseStation.isPresent()) {
          Arrays.stream(request.getReports())
-              .forEach(report -> reportedPositionRepository.save(ReportedPosition.builder()
-                   .mobileStationId(report.getMobileId())
-                   .x(baseStation.get().getX())
-                   .y(baseStation.get().getY())
-                   .errorRadius(report.getDistance())
-                   .build()));
+              .forEach(report -> {
+
+                 if (report.getDistance() > baseStation.get().getDetectionRadiusInMeters()) {
+                    throw new IllegalArgumentException(INVALID_DETECTION_DISTANCE);
+                 }
+
+                 reportedPositionRepository.save(ReportedPosition.builder()
+                      .mobileStationId(report.getMobileId())
+                      .x(baseStation.get().getX())
+                      .y(baseStation.get().getY())
+                      .errorRadius(report.getDistance())
+                      .build());
+              });
 
          return baseStation.get();
       }
-      throw new NoSuchElementException(INVALID_BASE_STATION_ID);
-   }
-
-   private List<ReportedPosition> filterRelevantReports(List<ReportedPosition> reports,
-        ReportedPosition latestReport)
-   {
-      LocalDateTime latestReportTime = latestReport.getTimestamp();
-
-      List<ReportedPosition> filteredByTime = filterByTime(reports, latestReportTime);
-
-      return filterByPosition(filteredByTime, latestReport);
-   }
-
-   private List<ReportedPosition> filterByTime(
-        List<ReportedPosition> reports, LocalDateTime latestReportTime)
-   {               // filters out reports by expiration time
-      return reports.stream()
-           .filter(report -> report.getTimestamp()
-                .isBefore(latestReportTime.minus(navigationProperties.getDataExpirationTime())))
-           .collect(Collectors.toList());
-   }
-
-   private List<ReportedPosition> filterByPosition(List<ReportedPosition> reports, ReportedPosition latestReport)
-   {          //  filters out reported position that do not overlap with the latest position
-      return reports.stream()
-           .filter(report -> CompareUtil.isOverLapping(latestReport, report))
-           .collect(Collectors.toList());
+      throw new NoSuchElementException(INVALID_BASE_ID);
    }
 
 }

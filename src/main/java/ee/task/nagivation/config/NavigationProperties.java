@@ -1,4 +1,4 @@
-package ee.task.nagivation.configuration;
+package ee.task.nagivation.config;
 
 import ee.task.nagivation.data.BaseStation;
 import lombok.Getter;
@@ -17,7 +17,7 @@ import java.util.List;
 @Getter
 public class NavigationProperties {
     private List<BaseStation> baseStations;
-    @DurationUnit(ChronoUnit.MILLIS)
+    @DurationUnit(ChronoUnit.SECONDS)
     private Duration dataExpirationTime;
 
 }

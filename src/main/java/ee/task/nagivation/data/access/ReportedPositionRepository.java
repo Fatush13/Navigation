@@ -11,4 +11,5 @@ import java.util.UUID;
 public interface ReportedPositionRepository extends JpaRepository<ReportedPosition, Long> {
 
      List<ReportedPosition> findAllByMobileStationId(UUID mobileStationId);
+
 }

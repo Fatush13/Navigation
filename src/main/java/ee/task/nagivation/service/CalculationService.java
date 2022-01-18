@@ -1,7 +1,6 @@
 package ee.task.nagivation.service;
 
 
-import java.util.Arrays;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
@@ -48,14 +47,8 @@ public class CalculationService {
       log.error("Residuals: {}", optimum.getResiduals());
       log.error("Jacobian: {}", optimum.getJacobian());
       log.error("RMS: {}", optimum.getRMS());
-//      log.error("Centroid: {}", centroid);
-//      log.error("Centroid: {}", centroid);
 
       double deviation = defineDeviation(optimum);
-
-      if (reports.size() == 2) {
-         centroid = correctCentroid();
-      }
 
       return MobileStation.builder()
            .id(reports.get(0).getMobileStationId())
@@ -88,11 +81,7 @@ public class CalculationService {
 
       log.error("Vector: {}", vector);
 
-      return vector.getMaxValue();
-   }
-
-   private RealVector correctCentroid() {
-      return null;
+      return vector.getMaxValue() * 2;    // multiplier is a workaround to compensate multiple intersections problem
    }
 
 }

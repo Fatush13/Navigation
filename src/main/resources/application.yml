@@ -1,5 +1,5 @@
 navigation:
-  dataExpirationTime: 3000  # relevance of reported position in milliseconds
+  dataExpirationTime: 3 # relevance of reported position in seconds
   baseStations:
     -
       name: bs1

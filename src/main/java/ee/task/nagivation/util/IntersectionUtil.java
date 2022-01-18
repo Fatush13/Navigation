@@ -4,7 +4,7 @@ package ee.task.nagivation.util;
 import ee.task.nagivation.data.ReportedPosition;
 
 
-public class CompareUtil {
+public class IntersectionUtil {
 
    public static boolean isOverLapping(ReportedPosition firstCircle, ReportedPosition secondCircle) {
       float x1 = firstCircle.getX();

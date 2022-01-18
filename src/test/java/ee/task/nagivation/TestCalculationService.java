@@ -1,11 +1,12 @@
 package ee.task.nagivation;
 
 
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
-
 
 import ee.task.nagivation.data.MobileStation;
 import ee.task.nagivation.data.ReportedPosition;
@@ -13,70 +14,47 @@ import ee.task.nagivation.service.CalculationService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import static java.time.temporal.ChronoUnit.SECONDS;
+
 
 @Slf4j
 public class TestCalculationService extends Assertions {
 
    CalculationService service = new CalculationService();
 
-//   ReportedPosition firstReport = ReportedPosition.builder()
-//        .x(1.44f)
-//        .y(1.46f)
-//        .errorRadius(1.22f)
-//        .build();
-//
-//   ReportedPosition secondReport = ReportedPosition.builder()
-//        .x(3.92f)
-//        .y(3.46f)
-//        .errorRadius(2.31f)
-//        .build();
-//
-//   ReportedPosition thirdPosition = ReportedPosition.builder()
-//        .x(3.82f)
-//        .y(-0.44f)
-//        .errorRadius(3.11f)
-//        .build();
-
-
-   ReportedPosition firstReport = ReportedPosition.builder()
-        .x(2.29f)
-        .y(2.21f)
-        .errorRadius(1.72f)
-        .build();
-
-   ReportedPosition secondReport = ReportedPosition.builder()
-        .x(1.73f)
-        .y(2.74f)
-        .errorRadius(1.38f)
-        .build();
-
-   ReportedPosition thirdPosition = ReportedPosition.builder()
-        .x(3.27f)
-        .y(1.78f)
-        .errorRadius(1.59f)
-        .build();
+   List<ReportedPosition> reports = new ArrayList<>();
 
    @Test
    void testByOneStation() {
-      MobileStation mobileStation = service.calculatePosition(
-           Stream.of(firstReport).collect(Collectors.toList()));
+      addReport(2.29f, 2.21f, 1.72f, LocalDateTime.now().minus(Duration.of(1, SECONDS)));
 
-      assertEquals(5.0f, mobileStation.getLastKnownX());
-      assertEquals(6.0f, mobileStation.getLastKnownY());
-      assertEquals(2.0f, mobileStation.getErrorRadius());
-   }
+      MobileStation mobileStation = service.calculatePosition(reports);
 
-   @Test
-   void testByTwoStation() {
-
+      assertEquals(2.29f, mobileStation.getLastKnownX());
+      assertEquals(2.21f, mobileStation.getLastKnownY());
+      assertEquals(1.72f, mobileStation.getErrorRadius());
    }
 
    @Test
    void testByThreeStation() {
-      MobileStation mobileStation = service.calculatePosition(
-           Stream.of(firstReport, secondReport, thirdPosition).collect(Collectors.toList()));
+      addReport(3.27f, 1.78f, 1.59f, LocalDateTime.now().minus(Duration.of(3, SECONDS)));
+      addReport(1.73f, 2.74f, 1.38f, LocalDateTime.now().minus(Duration.of(2, SECONDS)));
+      addReport(2.29f, 2.21f, 1.72f, LocalDateTime.now().minus(Duration.of(1, SECONDS)));
 
-      log.error("MobileStation: {}", mobileStation);
+      MobileStation mobileStation = service.calculatePosition(reports);
+
+      assertTrue((2.6f - 1.1f <= mobileStation.getLastKnownX() && mobileStation.getLastKnownX() <= 2.5f + 1.1f));
+      assertTrue((2.4f - 1.5f <= mobileStation.getLastKnownY() && mobileStation.getLastKnownY() <= 2.4f + 1.5f));
+      assertTrue(mobileStation.getErrorRadius() <= 1.2f);
+   }
+
+   private void addReport(float x, float y, float radius, LocalDateTime timeStamp) {
+      reports.add(ReportedPosition.builder()
+           .x(x)
+           .y(y)
+           .errorRadius(radius)
+           .timestamp(timeStamp)
+           .build());
    }
 
 }

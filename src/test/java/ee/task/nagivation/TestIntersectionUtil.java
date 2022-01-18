@@ -2,12 +2,12 @@ package ee.task.nagivation;
 
 
 import ee.task.nagivation.data.ReportedPosition;
-import ee.task.nagivation.util.CompareUtil;
+import ee.task.nagivation.util.IntersectionUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 
-public class TestCompareUtil extends Assertions {
+public class TestIntersectionUtil extends Assertions {
 
    ReportedPosition firstCircle = ReportedPosition.builder()
         .x(2.02f)
@@ -23,7 +23,7 @@ public class TestCompareUtil extends Assertions {
            .errorRadius(0.51f)
            .build();
 
-      assertTrue(CompareUtil.isOverLapping(firstCircle, secondCircle));
+      assertTrue(IntersectionUtil.isOverLapping(firstCircle, secondCircle));
    }
 
    @Test
@@ -34,7 +34,7 @@ public class TestCompareUtil extends Assertions {
            .errorRadius(1.98f)
            .build();
 
-      assertTrue(CompareUtil.isOverLapping(firstCircle, secondCircle));
+      assertTrue(IntersectionUtil.isOverLapping(firstCircle, secondCircle));
    }
 
    @Test
@@ -45,7 +45,7 @@ public class TestCompareUtil extends Assertions {
            .errorRadius(1.76f)
            .build();
 
-      assertFalse(CompareUtil.isOverLapping(firstCircle, secondCircle));
+      assertFalse(IntersectionUtil.isOverLapping(firstCircle, secondCircle));
    }
 
 }
