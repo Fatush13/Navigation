@@ -1,40 +1,35 @@
 package ee.task.nagivation.data.dto;
 
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.lang.NonNull;
+import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
+import lombok.Data;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 
 @Data
-@NoArgsConstructor
 public class BaseStationRequest {
-   @NonNull
+   @NotNull (message = "No base station id is presented")
    @JsonProperty ("base_station_id")
    UUID baseId;
+   @Valid @NotEmpty (message = "Request must contain at least 1 report")
    Report[] reports;
 
    @Data
-   @NoArgsConstructor
    public static class Report {
-      @NonNull
+      @NotNull (message = "No mobile station id is presented")
       @JsonProperty ("mobile_station_id")
       UUID mobileId;
-      @NonNull
-      float distance;
-      @NonNull
-      @DateTimeFormat (pattern = "yyyy-MM-dd hh:mm:ss.SSS")
-      LocalDateTime timestamp;
+      @NotNull (message = "No distance value is presented")
+      Float distance;
+      @NotNull (message = "No timestamp value is presented")
+      Instant timestamp;
    }
 
 }

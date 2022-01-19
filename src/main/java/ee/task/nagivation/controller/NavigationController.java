@@ -1,28 +1,24 @@
 package ee.task.nagivation.controller;
 
 
+import java.util.UUID;
+
+import javax.validation.Valid;
+
+import ee.task.nagivation.data.BaseStation;
 import ee.task.nagivation.data.dto.BaseStationRequest;
 import ee.task.nagivation.data.dto.MobileStationResponse;
 import ee.task.nagivation.service.PositioningService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.NoSuchElementException;
-import java.util.UUID;
-
-import javax.validation.Valid;
-
-import lombok.extern.slf4j.Slf4j;
-
 
 @RestController
-@Slf4j
 public class NavigationController {
 
    /* dependencies */
@@ -33,9 +29,7 @@ public class NavigationController {
    /* endpoints */
 
    @PostMapping
-   public ResponseEntity<String> detectMobileStations(@RequestBody @Valid BaseStationRequest baseStationRequest) {
-      log.error("Request1: {}", baseStationRequest);
-
+   public ResponseEntity<String> detectMobileStations(@Valid @RequestBody BaseStationRequest baseStationRequest) {
       try {
          positioningService.updatePosition(baseStationRequest);
 
@@ -47,8 +41,11 @@ public class NavigationController {
 
    @GetMapping (path = "location/{UUID}")
    public MobileStationResponse queryMobileStationPosition(@PathVariable (name = "UUID") UUID mobileId) {
-      log.error("Request2: {}", mobileId);
-
       return positioningService.queryPosition(mobileId);
+   }
+
+   @GetMapping
+   public Iterable<BaseStation> queryMobileStationPosition() {
+      return positioningService.queryBaseStations();
    }
 }

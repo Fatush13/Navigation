@@ -3,8 +3,8 @@ navigation:
   baseStations:
     -
       name: bs1
-      x: -250.7
-      y: 170.2
+      x: 27.4
+      y: 31.1
       detectionRadiusInMeters: 49.7
     -
       name: bs2

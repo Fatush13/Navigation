@@ -6,25 +6,16 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import lombok.extern.slf4j.Slf4j;
-
 import ee.task.nagivation.data.ReportedPosition;
 
 
-@Slf4j
-public class FilteringUtil {
+public class FiltrationUtil {
 
    public static List<ReportedPosition> filterReports(List<ReportedPosition> reports, Duration expirationTime)
    {
-      log.error("Reports unsorted: {}\n", reports);
-
       reports.sort(Comparator.comparing(ReportedPosition::getTimestamp));
 
-      log.error("Reports sorted: {}\n", reports);
-
       List<ReportedPosition> filteredByTime = filterByTime(reports, expirationTime);
-
-      log.error("Reports filtered by time: {}\n", filteredByTime);
 
       return filterByPosition(filteredByTime);
    }

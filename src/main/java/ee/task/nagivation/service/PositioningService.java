@@ -1,6 +1,13 @@
 package ee.task.nagivation.service;
 
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.UUID;
+
 import ee.task.nagivation.config.NavigationProperties;
 import ee.task.nagivation.data.BaseStation;
 import ee.task.nagivation.data.MobileStation;
@@ -13,24 +20,15 @@ import ee.task.nagivation.data.dto.MobileStationResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.UUID;
-
-import lombok.extern.slf4j.Slf4j;
-
+import static ee.task.nagivation.exceptions.NavigationExceptions.DISTANCE_EXCEEDS_DETECTION_RADIUS;
 import static ee.task.nagivation.exceptions.NavigationExceptions.INVALID_BASE_ID;
-import static ee.task.nagivation.exceptions.NavigationExceptions.INVALID_DETECTION_DISTANCE;
 import static ee.task.nagivation.exceptions.NavigationExceptions.MOBILE_NOT_DETECTED;
-import static ee.task.nagivation.util.ConvertionUtil.convertToResponse;
-import static ee.task.nagivation.util.FilteringUtil.filterReports;
+import static ee.task.nagivation.exceptions.NavigationExceptions.NEGATIVE_DISTANCE_VALUE;
+import static ee.task.nagivation.util.ConversionUtil.convertToResponse;
+import static ee.task.nagivation.util.FiltrationUtil.filterReports;
 
 
 @Service
-@Slf4j
 public class PositioningService {
 
    /* dependencies */
@@ -66,6 +64,8 @@ public class PositioningService {
    }
 
    public MobileStationResponse queryPosition(UUID mobileId) {
+      Iterable<MobileStation> stations = mobileStationRepository.findAll();
+
       Optional<MobileStation> mobileStation = mobileStationRepository.findById(mobileId);
 
       if (mobileStation.isPresent()) {
@@ -78,9 +78,13 @@ public class PositioningService {
            .build();
    }
 
+   public Iterable<BaseStation> queryBaseStations() {
+      return baseStationRepository.findAll();
+   }
+
    /* implementation */
 
-   private BaseStation saveNewReport(BaseStationRequest request) {
+   private void saveNewReport(BaseStationRequest request) {
       Optional<BaseStation> baseStation = baseStationRepository.findById(request.getBaseId());
 
       if (baseStation.isPresent()) {
@@ -88,7 +92,9 @@ public class PositioningService {
               .forEach(report -> {
 
                  if (report.getDistance() > baseStation.get().getDetectionRadiusInMeters()) {
-                    throw new IllegalArgumentException(INVALID_DETECTION_DISTANCE);
+                    throw new IllegalArgumentException(DISTANCE_EXCEEDS_DETECTION_RADIUS);
+                 } else if (report.getDistance() < 0) {
+                    throw new IllegalArgumentException(NEGATIVE_DISTANCE_VALUE);
                  }
 
                  reportedPositionRepository.save(ReportedPosition.builder()
@@ -96,10 +102,11 @@ public class PositioningService {
                       .x(baseStation.get().getX())
                       .y(baseStation.get().getY())
                       .errorRadius(report.getDistance())
+                      .timestamp(report.getTimestamp())
                       .build());
               });
 
-         return baseStation.get();
+         return;
       }
       throw new NoSuchElementException(INVALID_BASE_ID);
    }

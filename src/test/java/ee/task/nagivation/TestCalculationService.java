@@ -2,11 +2,9 @@ package ee.task.nagivation;
 
 
 import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-
-import lombok.extern.slf4j.Slf4j;
 
 import ee.task.nagivation.data.MobileStation;
 import ee.task.nagivation.data.ReportedPosition;
@@ -17,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import static java.time.temporal.ChronoUnit.SECONDS;
 
 
-@Slf4j
 public class TestCalculationService extends Assertions {
 
    CalculationService service = new CalculationService();
@@ -26,7 +23,7 @@ public class TestCalculationService extends Assertions {
 
    @Test
    void testByOneStation() {
-      addReport(2.29f, 2.21f, 1.72f, LocalDateTime.now().minus(Duration.of(1, SECONDS)));
+      addReport(2.29f, 2.21f, 1.72f, Instant.now().minus(Duration.of(1, SECONDS)));
 
       MobileStation mobileStation = service.calculatePosition(reports);
 
@@ -37,9 +34,9 @@ public class TestCalculationService extends Assertions {
 
    @Test
    void testByThreeStation() {
-      addReport(3.27f, 1.78f, 1.59f, LocalDateTime.now().minus(Duration.of(3, SECONDS)));
-      addReport(1.73f, 2.74f, 1.38f, LocalDateTime.now().minus(Duration.of(2, SECONDS)));
-      addReport(2.29f, 2.21f, 1.72f, LocalDateTime.now().minus(Duration.of(1, SECONDS)));
+      addReport(3.27f, 1.78f, 1.59f, Instant.now().minus(Duration.of(3, SECONDS)));
+      addReport(1.73f, 2.74f, 1.38f, Instant.now().minus(Duration.of(2, SECONDS)));
+      addReport(2.29f, 2.21f, 1.72f, Instant.now().minus(Duration.of(1, SECONDS)));
 
       MobileStation mobileStation = service.calculatePosition(reports);
 
@@ -48,12 +45,12 @@ public class TestCalculationService extends Assertions {
       assertTrue(mobileStation.getErrorRadius() <= 1.2f);
    }
 
-   private void addReport(float x, float y, float radius, LocalDateTime timeStamp) {
+   private void addReport(float x, float y, float radius, Instant timestamp) {
       reports.add(ReportedPosition.builder()
            .x(x)
            .y(y)
            .errorRadius(radius)
-           .timestamp(timeStamp)
+           .timestamp(timestamp)
            .build());
    }
 

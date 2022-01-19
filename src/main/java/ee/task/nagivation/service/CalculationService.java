@@ -43,11 +43,6 @@ public class CalculationService {
 
       RealVector centroid = optimum.getPoint();
 
-      log.error("Centroid: {}", centroid);
-      log.error("Residuals: {}", optimum.getResiduals());
-      log.error("Jacobian: {}", optimum.getJacobian());
-      log.error("RMS: {}", optimum.getRMS());
-
       double deviation = defineDeviation(optimum);
 
       return MobileStation.builder()
@@ -78,8 +73,6 @@ public class CalculationService {
 
    private double defineDeviation(LeastSquaresOptimizer.Optimum optimum) {
       RealVector vector = optimum.getSigma(0);
-
-      log.error("Vector: {}", vector);
 
       return vector.getMaxValue() * 2;    // multiplier is a workaround to compensate multiple intersections problem
    }
